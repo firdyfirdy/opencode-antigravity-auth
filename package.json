@@ -1,0 +1,24 @@
+{
+  "name": "opencode-antigravity-auth",
+  "module": "index.ts",
+  "version": "1.0.0",
+  "author": "noefabris",
+  "repository": "https://github.com/NoeFabris/opencode-antigravity-auth",
+  "files": [
+    "index.ts",
+    "src"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@opencode-ai/plugin": "^0.15.30",
+    "@types/bun": "latest",
+    "@types/node": "^24.10.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@openauthjs/openauth": "^0.4.3"
+  }
+}
