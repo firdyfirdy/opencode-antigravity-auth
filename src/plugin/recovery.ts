@@ -491,7 +491,6 @@ export function createSessionRecoveryHook(
 
       return success;
     } catch (err) {
-      const log = createLogger("session-recovery");
       log.error("Recovery failed", { error: String(err) });
       return false;
     } finally {

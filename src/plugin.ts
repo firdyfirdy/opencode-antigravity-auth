@@ -1172,6 +1172,9 @@ export const createAntigravityPlugin = (providerId: string) => async (
                   currentEndpoint,
                   headerStyle,
                   forceThinkingRecovery,
+                  {
+                    claudeToolHardening: config.claude_tool_hardening,
+                  },
                 );
 
                 // Show thinking recovery toast (respects quiet mode)

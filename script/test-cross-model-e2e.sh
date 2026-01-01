@@ -44,7 +44,7 @@ echo "Test 1: Gemini Pro → Anthropic Claude Opus (direct API)"
 log_info "Step 1: Gemini with thinking + tool..."
 opencode run -m google/antigravity-gemini-3-pro-low \
   "Run: echo 'Test1-Gemini'. Think about sequences." \
-  2>&1 > /tmp/e2e-t1-s1.log || true
+  > /tmp/e2e-t1-s1.log 2>&1 || true
 
 SID=$(get_session_id)
 if [ -z "$SID" ]; then
@@ -54,7 +54,7 @@ else
   log_info "Step 2: Anthropic Claude Opus + tool..."
   opencode run -s "$SID" -m anthropic/claude-opus-4-5 \
     "Run: echo 'Test1-Anthropic-Claude'" \
-    2>&1 > /tmp/e2e-t1-s2.log || true
+    > /tmp/e2e-t1-s2.log 2>&1 || true
   
   if check_signature_error /tmp/e2e-t1-s2.log; then
     log_fail "Test 1 - Invalid signature error (Gemini → Anthropic Claude)"
@@ -69,7 +69,7 @@ echo "Test 2: Gemini Pro → Google Claude Opus Thinking"
 log_info "Step 1: Gemini with thinking + tool..."
 opencode run -m google/antigravity-gemini-3-pro-low \
   "Run: echo 'Test2-Gemini'. Think about this." \
-  2>&1 > /tmp/e2e-t2-s1.log || true
+  > /tmp/e2e-t2-s1.log 2>&1 || true
 
 SID=$(get_session_id)
 if [ -z "$SID" ]; then
@@ -79,7 +79,7 @@ else
   log_info "Step 2: Google Claude Opus Thinking + tool..."
   opencode run -s "$SID" -m google/antigravity-claude-opus-4-5-thinking-low \
     "Run: echo 'Test2-Google-Claude'" \
-    2>&1 > /tmp/e2e-t2-s2.log || true
+    > /tmp/e2e-t2-s2.log 2>&1 || true
   
   if check_signature_error /tmp/e2e-t2-s2.log; then
     log_fail "Test 2 - Invalid signature error (Gemini → Google Claude)"
@@ -94,7 +94,7 @@ echo "Test 3: Gemini Pro → OpenAI GPT-5.2"
 log_info "Step 1: Gemini with thinking + tool..."
 opencode run -m google/antigravity-gemini-3-pro-low \
   "Run: echo 'Test3-Gemini'. Think about AI models." \
-  2>&1 > /tmp/e2e-t3-s1.log || true
+  > /tmp/e2e-t3-s1.log 2>&1 || true
 
 SID=$(get_session_id)
 if [ -z "$SID" ]; then
@@ -104,7 +104,7 @@ else
   log_info "Step 2: OpenAI GPT-5.2 + tool..."
   opencode run -s "$SID" -m openai/gpt-5.2-medium \
     "Run: echo 'Test3-OpenAI'" \
-    2>&1 > /tmp/e2e-t3-s2.log || true
+    > /tmp/e2e-t3-s2.log 2>&1 || true
   
   if check_signature_error /tmp/e2e-t3-s2.log; then
     log_fail "Test 3 - Invalid signature error (Gemini → OpenAI)"
@@ -121,7 +121,7 @@ echo "Test 4: Anthropic Claude → Gemini (reverse direction)"
 log_info "Step 1: Anthropic Claude with tool..."
 opencode run -m anthropic/claude-opus-4-5 \
   "Run: echo 'Test4-Anthropic-Start'" \
-  2>&1 > /tmp/e2e-t4-s1.log || true
+  > /tmp/e2e-t4-s1.log 2>&1 || true
 
 SID=$(get_session_id)
 if [ -z "$SID" ]; then
@@ -131,7 +131,7 @@ else
   log_info "Step 2: Gemini + thinking + tool..."
   opencode run -s "$SID" -m google/antigravity-gemini-3-pro-low \
     "Run: echo 'Test4-Gemini'. Think about reversal." \
-    2>&1 > /tmp/e2e-t4-s2.log || true
+    > /tmp/e2e-t4-s2.log 2>&1 || true
   
   if check_signature_error /tmp/e2e-t4-s2.log; then
     log_fail "Test 4 - Invalid signature error (Anthropic Claude → Gemini)"
@@ -146,7 +146,7 @@ echo "Test 5: OpenAI → Google Claude Sonnet Thinking"
 log_info "Step 1: OpenAI with tool..."
 opencode run -m openai/gpt-5.2-medium \
   "Run: echo 'Test5-OpenAI-Start'" \
-  2>&1 > /tmp/e2e-t5-s1.log || true
+  > /tmp/e2e-t5-s1.log 2>&1 || true
 
 if grep -qi "api.*key\|unauthorized\|authentication" /tmp/e2e-t5-s1.log; then
   log_skip "Test 5 - OpenAI API key issue"
@@ -159,7 +159,7 @@ else
     log_info "Step 2: Google Claude Sonnet Thinking + tool..."
     opencode run -s "$SID" -m google/antigravity-claude-sonnet-4-5-thinking-low \
       "Run: echo 'Test5-Google-Claude'" \
-      2>&1 > /tmp/e2e-t5-s2.log || true
+      > /tmp/e2e-t5-s2.log 2>&1 || true
     
     if check_signature_error /tmp/e2e-t5-s2.log; then
       log_fail "Test 5 - Invalid signature error (OpenAI → Google Claude)"
@@ -175,7 +175,7 @@ echo "Test 6: 5-Model Round-Robin"
 log_info "Turn 1: Gemini Pro Low..."
 opencode run -m google/antigravity-gemini-3-pro-low \
   "Run: echo 'Turn1'. Think about the chain." \
-  2>&1 > /tmp/e2e-t6-s1.log || true
+  > /tmp/e2e-t6-s1.log 2>&1 || true
 
 SID=$(get_session_id)
 if [ -z "$SID" ]; then
@@ -186,17 +186,17 @@ else
   
   log_info "Turn 2: Anthropic Claude..."
   opencode run -s "$SID" -m anthropic/claude-opus-4-5 \
-    "Run: echo 'Turn2'" 2>&1 > /tmp/e2e-t6-s2.log || true
+    "Run: echo 'Turn2'" > /tmp/e2e-t6-s2.log 2>&1 || true
   check_signature_error /tmp/e2e-t6-s2.log && CHAIN_OK=false
   
   log_info "Turn 3: Google Claude Opus..."
   opencode run -s "$SID" -m google/antigravity-claude-opus-4-5-thinking-low \
-    "Run: echo 'Turn3'" 2>&1 > /tmp/e2e-t6-s3.log || true
+    "Run: echo 'Turn3'" > /tmp/e2e-t6-s3.log 2>&1 || true
   check_signature_error /tmp/e2e-t6-s3.log && CHAIN_OK=false
   
   log_info "Turn 4: OpenAI GPT-5.2..."
   opencode run -s "$SID" -m openai/gpt-5.2-medium \
-    "Run: echo 'Turn4'" 2>&1 > /tmp/e2e-t6-s4.log || true
+    "Run: echo 'Turn4'" > /tmp/e2e-t6-s4.log 2>&1 || true
   # Skip OpenAI check if API key issue
   if ! grep -qi "api.*key\|unauthorized" /tmp/e2e-t6-s4.log; then
     check_signature_error /tmp/e2e-t6-s4.log && CHAIN_OK=false
@@ -204,7 +204,7 @@ else
   
   log_info "Turn 5: Gemini Flash..."
   opencode run -s "$SID" -m google/antigravity-gemini-3-flash \
-    "Run: echo 'Turn5-Complete'" 2>&1 > /tmp/e2e-t6-s5.log || true
+    "Run: echo 'Turn5-Complete'" > /tmp/e2e-t6-s5.log 2>&1 || true
   check_signature_error /tmp/e2e-t6-s5.log && CHAIN_OK=false
   
   if $CHAIN_OK; then
@@ -220,7 +220,7 @@ echo "Test 7: Google Claude → Anthropic Claude (same family)"
 log_info "Step 1: Google Claude Sonnet Thinking..."
 opencode run -m google/antigravity-claude-sonnet-4-5-thinking-low \
   "Run: echo 'Test7-Google-Claude'" \
-  2>&1 > /tmp/e2e-t7-s1.log || true
+  > /tmp/e2e-t7-s1.log 2>&1 || true
 
 SID=$(get_session_id)
 if [ -z "$SID" ]; then
@@ -230,7 +230,7 @@ else
   log_info "Step 2: Anthropic Claude Opus..."
   opencode run -s "$SID" -m anthropic/claude-opus-4-5 \
     "Run: echo 'Test7-Anthropic-Claude'" \
-    2>&1 > /tmp/e2e-t7-s2.log || true
+    > /tmp/e2e-t7-s2.log 2>&1 || true
   
   if check_signature_error /tmp/e2e-t7-s2.log; then
     log_fail "Test 7 - Invalid signature error (Google Claude → Anthropic Claude)"
@@ -245,7 +245,7 @@ echo "Test 8: Triple Switch (Gemini → Anthropic → OpenAI)"
 log_info "Step 1: Gemini Flash..."
 opencode run -m google/antigravity-gemini-3-flash \
   "Run: echo 'Triple-1'. Think about it." \
-  2>&1 > /tmp/e2e-t8-s1.log || true
+  > /tmp/e2e-t8-s1.log 2>&1 || true
 
 SID=$(get_session_id)
 if [ -z "$SID" ]; then
@@ -256,12 +256,12 @@ else
   
   log_info "Step 2: Anthropic Claude..."
   opencode run -s "$SID" -m anthropic/claude-opus-4-5 \
-    "Run: echo 'Triple-2'" 2>&1 > /tmp/e2e-t8-s2.log || true
+    "Run: echo 'Triple-2'" > /tmp/e2e-t8-s2.log 2>&1 || true
   check_signature_error /tmp/e2e-t8-s2.log && TRIPLE_OK=false
   
   log_info "Step 3: OpenAI..."
   opencode run -s "$SID" -m openai/gpt-5.2-medium \
-    "Run: echo 'Triple-3'" 2>&1 > /tmp/e2e-t8-s3.log || true
+    "Run: echo 'Triple-3'" > /tmp/e2e-t8-s3.log 2>&1 || true
   if ! grep -qi "api.*key\|unauthorized" /tmp/e2e-t8-s3.log; then
     check_signature_error /tmp/e2e-t8-s3.log && TRIPLE_OK=false
   fi

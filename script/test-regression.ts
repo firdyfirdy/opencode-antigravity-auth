@@ -293,7 +293,6 @@ async function runTurn(
 
     const proc = spawn("opencode", args, {
       stdio: ["ignore", "pipe", "pipe"],
-      timeout,
       cwd: process.cwd(),
     });
 

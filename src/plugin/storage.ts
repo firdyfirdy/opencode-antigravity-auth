@@ -128,9 +128,9 @@ export function deduplicateAccountsByEmail<T extends { email?: string; lastUsed?
     // Prefer higher lastUsed, then higher addedAt
     // Compare fields separately to avoid integer overflow with large timestamps
     const currLastUsed = acc.lastUsed || 0;
-    const existLastUsed = (existing as any).lastUsed || 0;
+    const existLastUsed = existing.lastUsed || 0;
     const currAddedAt = acc.addedAt || 0;
-    const existAddedAt = (existing as any).addedAt || 0;
+    const existAddedAt = existing.addedAt || 0;
 
     const isNewer = currLastUsed > existLastUsed ||
       (currLastUsed === existLastUsed && currAddedAt > existAddedAt);

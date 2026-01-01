@@ -61,8 +61,6 @@ async function testModel(model: string, timeoutMs: number): Promise<TestResult> 
 
       if (code !== 0) {
         resolve({ success: false, error: `Exit ${code}: ${stderr || stdout}`.slice(0, 200), duration });
-      } else if (stdout.toLowerCase().includes("working")) {
-        resolve({ success: true, duration });
       } else {
         resolve({ success: true, duration });
       }
@@ -99,7 +97,7 @@ Usage:
 
 Options:
   --model <model>      Test specific model
-  --category <cat>     Test by category (gemini-cli, antigravity-gemini, antigravity-claude, antigravity-gpt)
+  --category <cat>     Test by category (gemini-cli, antigravity-gemini, antigravity-claude)
   --timeout <ms>       Timeout per model (default: 120000)
   --dry-run            List models without testing
   --help, -h           Show this help
