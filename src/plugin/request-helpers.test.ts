@@ -1542,46 +1542,58 @@ describe("extractVariantThinkingConfig", () => {
     expect(extractVariantThinkingConfig({})).toBeUndefined();
   });
 
-  it("extracts thinkingBudget from Google format", () => {
+  it("returns undefined when google key is missing", () => {
+    expect(extractVariantThinkingConfig({ other: {} })).toBeUndefined();
+  });
+
+  it("extracts thinkingLevel from Gemini 3 native format", () => {
+    const result = extractVariantThinkingConfig({
+      google: { thinkingLevel: "high" },
+    });
+    expect(result).toEqual({ thinkingLevel: "high", includeThoughts: undefined });
+  });
+
+  it("extracts thinkingLevel with includeThoughts", () => {
+    const result = extractVariantThinkingConfig({
+      google: { thinkingLevel: "medium", includeThoughts: true },
+    });
+    expect(result).toEqual({ thinkingLevel: "medium", includeThoughts: true });
+  });
+
+  it("extracts thinkingLevel with includeThoughts false", () => {
+    const result = extractVariantThinkingConfig({
+      google: { thinkingLevel: "low", includeThoughts: false },
+    });
+    expect(result).toEqual({ thinkingLevel: "low", includeThoughts: false });
+  });
+
+  it("extracts thinkingBudget from budget-based format (Claude/Gemini 2.5)", () => {
     const result = extractVariantThinkingConfig({
       google: { thinkingConfig: { thinkingBudget: 16384 } },
     });
     expect(result).toEqual({ thinkingBudget: 16384 });
   });
 
-  it("extracts budgetTokens from Anthropic format", () => {
+  it("prioritizes thinkingLevel over thinkingBudget", () => {
     const result = extractVariantThinkingConfig({
-      anthropic: { thinking: { type: "enabled", budgetTokens: 8192 } },
+      google: { 
+        thinkingLevel: "high",
+        thinkingConfig: { thinkingBudget: 8192 },
+      },
     });
-    expect(result).toEqual({ thinkingBudget: 8192 });
+    expect(result).toEqual({ thinkingLevel: "high", includeThoughts: undefined });
   });
 
-  it("maps OpenRouter effort to budget", () => {
+  it("returns undefined for invalid thinkingLevel type", () => {
     expect(extractVariantThinkingConfig({
-      openrouter: { reasoning: { effort: "low" } },
-    })).toEqual({ thinkingBudget: 8192 });
-
-    expect(extractVariantThinkingConfig({
-      openrouter: { reasoning: { effort: "medium" } },
-    })).toEqual({ thinkingBudget: 16384 });
-
-    expect(extractVariantThinkingConfig({
-      openrouter: { reasoning: { effort: "high" } },
-    })).toEqual({ thinkingBudget: 32768 });
-  });
-
-  it("returns undefined for unknown effort values", () => {
-    expect(extractVariantThinkingConfig({
-      openrouter: { reasoning: { effort: "extreme" } },
+      google: { thinkingLevel: 123 },
     })).toBeUndefined();
   });
 
-  it("prioritizes Google format over others", () => {
-    const result = extractVariantThinkingConfig({
-      google: { thinkingConfig: { thinkingBudget: 1000 } },
-      anthropic: { thinking: { budgetTokens: 2000 } },
-    });
-    expect(result).toEqual({ thinkingBudget: 1000 });
+  it("returns undefined for invalid thinkingBudget type", () => {
+    expect(extractVariantThinkingConfig({
+      google: { thinkingConfig: { thinkingBudget: "high" } },
+    })).toBeUndefined();
   });
 });
 

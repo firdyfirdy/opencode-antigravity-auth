@@ -166,6 +166,13 @@ function applyEnvOverrides(config: AntigravityConfig): AntigravityConfig {
     account_selection_strategy: env.OPENCODE_ANTIGRAVITY_ACCOUNT_SELECTION_STRATEGY
       ? AccountSelectionStrategySchema.catch('sticky').parse(env.OPENCODE_ANTIGRAVITY_ACCOUNT_SELECTION_STRATEGY)
       : config.account_selection_strategy,
+
+    // OPENCODE_ANTIGRAVITY_PID_OFFSET_ENABLED=1
+    pid_offset_enabled:
+      env.OPENCODE_ANTIGRAVITY_PID_OFFSET_ENABLED === "1" ||
+      env.OPENCODE_ANTIGRAVITY_PID_OFFSET_ENABLED === "true"
+        ? true
+        : config.pid_offset_enabled,
   };
 }
 

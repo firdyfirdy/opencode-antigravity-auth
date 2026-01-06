@@ -774,40 +774,47 @@ export function extractThinkingConfig(
 }
 
 /**
+ * Variant thinking config extracted from OpenCode's providerOptions.
+ */
+export interface VariantThinkingConfig {
+  /** Gemini 3 native thinking level (low/medium/high) */
+  thinkingLevel?: string;
+  /** Numeric thinking budget for Claude and Gemini 2.5 */
+  thinkingBudget?: number;
+  /** Whether to include thoughts in output */
+  includeThoughts?: boolean;
+}
+
+/**
  * Extracts variant thinking config from OpenCode's providerOptions.
- * Supports Google, Anthropic, and OpenRouter formats.
+ * 
+ * All Antigravity models route through the Google provider, so we only check
+ * providerOptions.google. Supports two formats:
+ * 
+ * 1. Gemini 3 native: { google: { thinkingLevel: "high", includeThoughts: true } }
+ * 2. Budget-based (Claude/Gemini 2.5): { google: { thinkingConfig: { thinkingBudget: 32000 } } }
  */
 export function extractVariantThinkingConfig(
   providerOptions: Record<string, unknown> | undefined
-): { thinkingBudget?: number } | undefined {
+): VariantThinkingConfig | undefined {
   if (!providerOptions) return undefined;
 
-  // Google format: { google: { thinkingConfig: { thinkingBudget } } }
   const google = providerOptions.google as Record<string, unknown> | undefined;
-  if (google?.thinkingConfig && typeof google.thinkingConfig === "object") {
+  if (!google) return undefined;
+
+  // Gemini 3 native format: { google: { thinkingLevel: "high", includeThoughts: true } }
+  if (typeof google.thinkingLevel === "string") {
+    return {
+      thinkingLevel: google.thinkingLevel,
+      includeThoughts: typeof google.includeThoughts === "boolean" ? google.includeThoughts : undefined,
+    };
+  }
+
+  // Budget-based format (Claude/Gemini 2.5): { google: { thinkingConfig: { thinkingBudget } } }
+  if (google.thinkingConfig && typeof google.thinkingConfig === "object") {
     const tc = google.thinkingConfig as Record<string, unknown>;
     if (typeof tc.thinkingBudget === "number") {
       return { thinkingBudget: tc.thinkingBudget };
-    }
-  }
-
-  // Anthropic format: { anthropic: { thinking: { type: "enabled", budgetTokens } } }
-  const anthropic = providerOptions.anthropic as Record<string, unknown> | undefined;
-  if (anthropic?.thinking && typeof anthropic.thinking === "object") {
-    const thinking = anthropic.thinking as Record<string, unknown>;
-    if (typeof thinking.budgetTokens === "number") {
-      return { thinkingBudget: thinking.budgetTokens };
-    }
-  }
-
-  // OpenRouter format: { openrouter: { reasoning: { effort } } }
-  const openrouter = providerOptions.openrouter as Record<string, unknown> | undefined;
-  if (openrouter?.reasoning && typeof openrouter.reasoning === "object") {
-    const reasoning = openrouter.reasoning as Record<string, unknown>;
-    if (typeof reasoning.effort === "string") {
-      const effortMap: Record<string, number> = { low: 8192, medium: 16384, high: 32768 };
-      const budget = effortMap[reasoning.effort];
-      if (budget) return { thinkingBudget: budget };
     }
   }
 

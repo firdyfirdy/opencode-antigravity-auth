@@ -880,7 +880,8 @@ export const createAntigravityPlugin = (providerId: string) => async (
               family, 
               model, 
               config.account_selection_strategy,
-              'antigravity'
+              'antigravity',
+              config.pid_offset_enabled,
             );
             
             if (!account) {

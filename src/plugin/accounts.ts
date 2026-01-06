@@ -269,7 +269,8 @@ export class AccountManager {
     family: ModelFamily, 
     model?: string | null,
     strategy: AccountSelectionStrategy = 'sticky',
-    headerStyle: HeaderStyle = 'antigravity'
+    headerStyle: HeaderStyle = 'antigravity',
+    pidOffsetEnabled: boolean = false,
   ): ManagedAccount | null {
     const quotaKey = getQuotaKey(family, headerStyle, model);
 
@@ -295,9 +296,9 @@ export class AccountManager {
       }
     }
 
-    // PID-based offset for multi-session distribution
+    // PID-based offset for multi-session distribution (opt-in)
     // Different sessions (PIDs) will prefer different starting accounts
-    if (!this.sessionOffsetApplied[family] && this.accounts.length > 1) {
+    if (pidOffsetEnabled && !this.sessionOffsetApplied[family] && this.accounts.length > 1) {
       const pidOffset = process.pid % this.accounts.length;
       const baseIndex = this.currentAccountIndexByFamily[family] ?? 0;
       this.currentAccountIndexByFamily[family] = (baseIndex + pidOffset) % this.accounts.length;

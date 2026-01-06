@@ -728,13 +728,21 @@ export function prepareAntigravityRequest(
         const variantConfig = extractVariantThinkingConfig(
           requestPayload.providerOptions as Record<string, unknown> | undefined
         );
-        if (variantConfig?.thinkingBudget) {
-          const isGemini3 = effectiveModel.toLowerCase().includes("gemini-3");
+        const isGemini3 = effectiveModel.toLowerCase().includes("gemini-3");
+        
+        if (variantConfig?.thinkingLevel && isGemini3) {
+          // Gemini 3 native format - use thinkingLevel directly
+          tierThinkingLevel = variantConfig.thinkingLevel;
+          tierThinkingBudget = undefined;
+        } else if (variantConfig?.thinkingBudget) {
           if (isGemini3) {
+            // Legacy format for Gemini 3 - convert with deprecation warning
+            log.warn("[Deprecated] Using thinkingBudget for Gemini 3 model. Use thinkingLevel instead.");
             tierThinkingLevel = variantConfig.thinkingBudget <= 8192 ? "low" 
               : variantConfig.thinkingBudget <= 16384 ? "medium" : "high";
             tierThinkingBudget = undefined;
           } else {
+            // Claude / Gemini 2.5 - use budget directly
             tierThinkingBudget = variantConfig.thinkingBudget;
             tierThinkingLevel = undefined;
           }

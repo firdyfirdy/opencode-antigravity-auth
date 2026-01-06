@@ -3,32 +3,32 @@ import { resolveModelWithTier, resolveModelWithVariant } from "./model-resolver"
 
 describe("resolveModelWithTier", () => {
   describe("Gemini 3 flash models (Issue #109)", () => {
-    it("antigravity-gemini-3-flash gets default thinkingLevel", () => {
+    it("antigravity-gemini-3-flash gets default thinkingLevel (high per Google docs)", () => {
       const result = resolveModelWithTier("antigravity-gemini-3-flash");
       expect(result.actualModel).toBe("gemini-3-flash");
-      expect(result.thinkingLevel).toBe("low");
+      expect(result.thinkingLevel).toBe("high");
       expect(result.quotaPreference).toBe("antigravity");
     });
 
-    it("gemini-3-flash gets default thinkingLevel", () => {
+    it("gemini-3-flash gets default thinkingLevel (high per Google docs)", () => {
       const result = resolveModelWithTier("gemini-3-flash");
       expect(result.actualModel).toBe("gemini-3-flash");
-      expect(result.thinkingLevel).toBe("low");
+      expect(result.thinkingLevel).toBe("high");
     });
 
-    it("gemini-3-flash-preview gets default thinkingLevel", () => {
+    it("gemini-3-flash-preview gets default thinkingLevel (high per Google docs)", () => {
       const result = resolveModelWithTier("gemini-3-flash-preview");
       expect(result.actualModel).toBe("gemini-3-flash-preview");
-      expect(result.thinkingLevel).toBe("low");
+      expect(result.thinkingLevel).toBe("high");
       expect(result.quotaPreference).toBe("gemini-cli");
     });
   });
 
   describe("Gemini 3 preview models (Issue #115)", () => {
-    it("gemini-3-pro-preview gets default thinkingLevel", () => {
+    it("gemini-3-pro-preview gets default thinkingLevel (high per Google docs)", () => {
       const result = resolveModelWithTier("gemini-3-pro-preview");
       expect(result.actualModel).toBe("gemini-3-pro-preview");
-      expect(result.thinkingLevel).toBe("low");
+      expect(result.thinkingLevel).toBe("high");
       expect(result.quotaPreference).toBe("gemini-cli");
     });
   });
@@ -52,6 +52,24 @@ describe("resolveModelWithTier", () => {
       const result = resolveModelWithTier("antigravity-gemini-3-flash-medium");
       expect(result.actualModel).toBe("gemini-3-flash-medium");
       expect(result.thinkingLevel).toBe("medium");
+    });
+  });
+
+  describe("Claude thinking models default budget", () => {
+    it("antigravity-claude-sonnet-4-5-thinking gets default max budget (32768)", () => {
+      const result = resolveModelWithTier("antigravity-claude-sonnet-4-5-thinking");
+      expect(result.actualModel).toBe("claude-sonnet-4-5-thinking");
+      expect(result.thinkingBudget).toBe(32768);
+      expect(result.isThinkingModel).toBe(true);
+      expect(result.quotaPreference).toBe("antigravity");
+    });
+
+    it("antigravity-claude-opus-4-5-thinking gets default max budget (32768)", () => {
+      const result = resolveModelWithTier("antigravity-claude-opus-4-5-thinking");
+      expect(result.actualModel).toBe("claude-opus-4-5-thinking");
+      expect(result.thinkingBudget).toBe(32768);
+      expect(result.isThinkingModel).toBe(true);
+      expect(result.quotaPreference).toBe("antigravity");
     });
   });
 });

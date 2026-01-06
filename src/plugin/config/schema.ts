@@ -240,6 +240,20 @@ export const AntigravityConfigSchema = z.object({
    */
   account_selection_strategy: AccountSelectionStrategySchema.default('sticky'),
   
+  /**
+   * Enable PID-based account offset for multi-session distribution.
+   * 
+   * When enabled, different sessions (PIDs) will prefer different starting
+   * accounts, which helps distribute load when running multiple parallel agents.
+   * 
+   * When disabled (default), accounts start from the same index, which preserves
+   * Anthropic's prompt cache across restarts (recommended for single-session use).
+   * 
+   * Env override: OPENCODE_ANTIGRAVITY_PID_OFFSET_ENABLED=1
+   * @default false
+   */
+  pid_offset_enabled: z.boolean().default(false),
+  
   // =========================================================================
   // Auto-Update
   // =========================================================================
@@ -274,6 +288,7 @@ export const DEFAULT_CONFIG: AntigravityConfig = {
   max_rate_limit_wait_seconds: 300,
   quota_fallback: false,
   account_selection_strategy: 'sticky',
+  pid_offset_enabled: false,
   auto_update: true,
   signature_cache: {
     enabled: true,

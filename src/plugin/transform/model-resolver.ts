@@ -20,10 +20,10 @@ export const THINKING_TIER_BUDGETS = {
 
 /**
  * Gemini 3 uses thinkingLevel strings instead of numeric budgets.
- * Flash supports: low, medium, high
- * Pro supports: low, high
+ * Flash supports: minimal, low, medium, high
+ * Pro supports: low, high (no minimal/medium)
  */
-export const GEMINI_3_THINKING_LEVELS = ["low", "medium", "high"] as const;
+export const GEMINI_3_THINKING_LEVELS = ["minimal", "low", "medium", "high"] as const;
 
 /**
  * Model aliases - maps user-friendly names to API model names.
@@ -188,22 +188,29 @@ export function resolveModelWithTier(requestedModel: string): ResolvedModel {
   const resolvedModel = MODEL_FALLBACKS[actualModel] || actualModel;
   const isThinking = isThinkingCapableModel(resolvedModel);
 
+  // Check if this is a Gemini 3 model (works for both aliased and skipAlias paths)
+  const isEffectiveGemini3 = resolvedModel.toLowerCase().includes("gemini-3");
+  const isClaudeThinking = resolvedModel.toLowerCase().includes("claude") && resolvedModel.toLowerCase().includes("thinking");
+
   if (!tier) {
-    // Default thinkingLevel for Gemini 3 flash models (including -preview variants)
-    if (resolvedModel === "gemini-3-flash" || resolvedModel === "gemini-3-flash-preview") {
+    // Gemini 3 models without explicit tier get a default thinkingLevel
+    if (isEffectiveGemini3) {
+      // Both Pro and Flash default to "high" per Google's API docs:
+      // "This is the default level for Gemini 3 Pro and Gemini 3 Flash"
       return {
         actualModel: resolvedModel,
-        thinkingLevel: "low",
+        thinkingLevel: "high",
         isThinkingModel: true,
         quotaPreference,
         explicitQuota,
       };
     }
-    // Default thinkingLevel for Gemini 3 pro-preview (no tier suffix)
-    if (resolvedModel === "gemini-3-pro-preview") {
+    // Claude thinking models without explicit tier get max budget (32768)
+    // Per Anthropic docs, budget_tokens is required when enabling extended thinking
+    if (isClaudeThinking) {
       return {
         actualModel: resolvedModel,
-        thinkingLevel: "low",
+        thinkingBudget: THINKING_TIER_BUDGETS.claude.high,
         isThinkingModel: true,
         quotaPreference,
         explicitQuota,
@@ -212,8 +219,8 @@ export function resolveModelWithTier(requestedModel: string): ResolvedModel {
     return { actualModel: resolvedModel, isThinkingModel: isThinking, quotaPreference, explicitQuota };
   }
 
-  // Gemini 3 models with tier suffix - apply thinkingLevel regardless of skipAlias
-  if (resolvedModel.includes("gemini-3")) {
+  // Gemini 3 models with tier always get thinkingLevel set
+  if (isEffectiveGemini3) {
     return {
       actualModel: resolvedModel,
       thinkingLevel: tier,
