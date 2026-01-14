@@ -151,6 +151,9 @@ function mergeAccountStorage(existing: AccountStorageV3, incoming: AccountStorag
         accountMap.set(acc.refreshToken, {
           ...existingAcc,
           ...acc,
+          // Preserve manually configured projectId/managedProjectId if not in incoming
+          projectId: acc.projectId ?? existingAcc.projectId,
+          managedProjectId: acc.managedProjectId ?? existingAcc.managedProjectId,
           rateLimitResetTimes: {
             ...existingAcc.rateLimitResetTimes,
             ...acc.rateLimitResetTimes,
