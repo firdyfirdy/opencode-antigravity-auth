@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "814709c8e6f40934e02e2d3586159f558b92bdc4",
-  "startedAt": "2026-01-19T04:31:25.597Z",
-  "summary": "Added wild thinking block detection helpers in thinking-recovery.ts, including non-thinking content checks for Gemini parts and Anthropic blocks plus exported isWildThinkingMessage/hasWildThinkingBlock utilities.",
-  "completedAt": "2026-01-19T04:33:26.359Z"
-}

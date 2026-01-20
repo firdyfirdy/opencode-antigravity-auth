@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "8edf4bce7e70df2867449320435aa2fc66e25024",
-  "startedAt": "2026-01-19T09:31:16.935Z",
-  "summary": "Updated transformThinkingParts to convert signature to providerMetadata.anthropic.signature format for Anthropic-style content arrays. Added convertSignatureToProviderMetadata helper.",
-  "completedAt": "2026-01-19T09:33:09.442Z"
-}

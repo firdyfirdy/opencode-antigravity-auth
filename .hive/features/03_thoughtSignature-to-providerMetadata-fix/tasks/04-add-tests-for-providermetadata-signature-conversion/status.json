@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "8edf4bce7e70df2867449320435aa2fc66e25024",
-  "startedAt": "2026-01-19T09:33:14.972Z",
-  "summary": "Added 6 comprehensive tests for providerMetadata signature conversion covering: Anthropic-style signature, Gemini-style thoughtSignature, Anthropic-style in candidates, no signature case, and empty signature case. All 141 tests pass.",
-  "completedAt": "2026-01-19T09:35:24.383Z"
-}

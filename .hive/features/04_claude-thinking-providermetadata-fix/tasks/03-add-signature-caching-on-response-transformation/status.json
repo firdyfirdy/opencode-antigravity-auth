@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "814709c8e6f40934e02e2d3586159f558b92bdc4",
-  "startedAt": "2026-01-19T15:16:07.814Z",
-  "summary": "Added providerMetadata.anthropic.signature conversion in both transformGeminiCandidate (for Gemini-style thought:true and Anthropic-style type:thinking) and transformThinkingParts (for content arrays). Removes original signature/thoughtSignature fields after conversion. Added cacheSignature import for future use.",
-  "completedAt": "2026-01-19T15:39:49.553Z"
-}

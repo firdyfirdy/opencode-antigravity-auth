@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "8edf4bce7e70df2867449320435aa2fc66e25024",
-  "startedAt": "2026-01-19T09:24:30.538Z",
-  "summary": "Updated transformGeminiCandidate to use providerMetadata format for both Gemini-style (thought: true) and Anthropic-style (type: thinking) thinking blocks. Also added convertSignatureToProviderMetadata helper.",
-  "completedAt": "2026-01-19T09:28:19.729Z"
-}

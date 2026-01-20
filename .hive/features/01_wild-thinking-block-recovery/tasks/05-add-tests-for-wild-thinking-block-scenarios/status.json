@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "814709c8e6f40934e02e2d3586159f558b92bdc4",
-  "startedAt": "2026-01-19T06:12:19.889Z",
-  "summary": "Added thinking-recovery-wild.test.ts to cover wild thinking detection and repair placeholder behavior, using dynamic import to avoid TS export mismatch; tests expect placeholder string and thinking-only detection.",
-  "completedAt": "2026-01-19T06:45:24.236Z"
-}

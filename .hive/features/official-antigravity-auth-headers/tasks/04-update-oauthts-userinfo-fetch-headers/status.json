@@ -1,6 +1,0 @@
-{
-  "status": "completed",
-  "origin": "plan",
-  "startedAt": "2026-01-19T02:57:26.659Z",
-  "summary": "Added User-Agent and X-Goog-Api-Client headers to userinfo fetch request"
-}

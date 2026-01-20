@@ -33,3 +33,9 @@ antigravity-debug-*.log
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Hive workflow internal files
+.hive/
+
+# Test artifacts
+test-file.ts

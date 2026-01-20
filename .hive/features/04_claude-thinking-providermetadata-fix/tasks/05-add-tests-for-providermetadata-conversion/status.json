@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "d0bd601282dced738461601f4dfdc07ae8688ef0",
-  "startedAt": "2026-01-19T15:45:26.413Z",
-  "summary": "Added 6 unit tests for providerMetadata conversion: (1) Gemini-style thoughtSignature → providerMetadata.anthropic.signature (2) Anthropic-style signature → providerMetadata (3) Content array signature conversion (4) Prefers signature over thoughtSignature (5) Removes original signature fields after conversion (6) No providerMetadata when no signature present. All 139 tests pass.",
-  "completedAt": "2026-01-19T15:46:33.893Z"
-}

@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "1cfe83182d69c188c29d3c7dac16ecb6158c33b7",
-  "startedAt": "2026-01-19T08:55:29.745Z",
-  "summary": "Hooked thinking_signature_invalid into the THINKING_RECOVERY_NEEDED flow. Updated request.ts line 1597 to throw recovery error for both thinking_block_order AND thinking_signature_invalid. When thrown, plugin.ts sets forceThinkingRecovery=true, which triggers closeToolLoopForThinking() -> stripAllThinkingBlocks() on retry. This ensures conversation continues with stripped thinking when signature validation fails.",
-  "completedAt": "2026-01-19T08:56:48.680Z"
-}

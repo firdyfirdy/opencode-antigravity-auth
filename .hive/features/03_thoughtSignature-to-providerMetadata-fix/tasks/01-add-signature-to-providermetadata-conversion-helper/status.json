@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "8edf4bce7e70df2867449320435aa2fc66e25024",
-  "startedAt": "2026-01-19T09:21:43.118Z",
-  "summary": "Added convertSignatureToProviderMetadata helper function that converts thoughtSignature/signature to providerMetadata.anthropic.signature format",
-  "completedAt": "2026-01-19T09:24:25.290Z"
-}

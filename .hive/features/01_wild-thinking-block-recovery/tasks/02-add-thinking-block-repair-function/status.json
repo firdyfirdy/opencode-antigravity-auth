@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "814709c8e6f40934e02e2d3586159f558b92bdc4",
-  "startedAt": "2026-01-19T04:33:33.433Z",
-  "summary": "Added repairWildThinkingBlock with placeholder recovery text and new thinking-recovery tests covering Gemini/Anthropic wild thinking messages and no-op behavior.",
-  "completedAt": "2026-01-19T04:43:12.496Z"
-}

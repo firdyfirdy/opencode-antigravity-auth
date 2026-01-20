@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "814709c8e6f40934e02e2d3586159f558b92bdc4",
-  "startedAt": "2026-01-19T05:40:42.431Z",
-  "summary": "Added streaming wild thinking recovery: streaming options include repairWildThinking; transformer tracks thinking-only streams and appends placeholder SSE line on flush; request streaming path enables repair when keep_thinking. Added streaming test to ensure placeholder emitted when stream ends with only thinking.",
-  "completedAt": "2026-01-19T06:12:04.786Z"
-}

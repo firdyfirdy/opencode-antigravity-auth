@@ -1,8 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "baseCommit": "bae6a8f145bb1f822f10f425dea4175615ca83bd",
-  "startedAt": "2026-01-19T15:14:30.734Z",
-  "summary": "Added providerMetadata conversion in both transformGeminiCandidate (already done) and transformThinkingParts. Converts thoughtSignature/signature to providerMetadata.anthropic.signature format and removes original fields.",
-  "completedAt": "2026-01-19T15:28:23.747Z"
-}

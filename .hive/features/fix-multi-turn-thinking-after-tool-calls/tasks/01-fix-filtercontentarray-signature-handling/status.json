@@ -1,6 +1,0 @@
-{
-  "status": "done",
-  "origin": "plan",
-  "summary": "Fixed filterContentArray to check isOurCachedSignature before passing through signatures. Injects SKIP_THOUGHT_SIGNATURE for foreign/missing signatures.",
-  "completedAt": "2026-01-19T04:01:45.081Z"
-}
