@@ -67,6 +67,7 @@ import {
   type ThinkingTier,
 } from "./transform";
 import { detectErrorType } from "./recovery";
+import { getSessionFingerprint, buildFingerprintHeaders, type Fingerprint } from "./fingerprint";
 
 const log = createLogger("request");
 
@@ -600,6 +601,10 @@ export function isGenerativeLanguageRequest(input: RequestInfo): input is string
 export interface PrepareRequestOptions {
   /** Enable Claude tool hardening (parameter signatures + system instruction). Default: true */
   claudeToolHardening?: boolean;
+  /** Google Search configuration (global default) */
+  googleSearch?: GoogleSearchConfig;
+  /** Per-account fingerprint for rate limit mitigation. Falls back to session fingerprint if not provided. */
+  fingerprint?: Fingerprint;
 }
 
 export function prepareAntigravityRequest(
@@ -1378,9 +1383,37 @@ export function prepareAntigravityRequest(
   }
 
   const selectedHeaders = headerStyle === "gemini-cli" ? GEMINI_CLI_HEADERS : ANTIGRAVITY_HEADERS;
-  headers.set("User-Agent", selectedHeaders["User-Agent"]);
-  headers.set("X-Goog-Api-Client", selectedHeaders["X-Goog-Api-Client"]);
-  headers.set("Client-Metadata", selectedHeaders["Client-Metadata"]);
+  
+  // Use per-account fingerprint if provided, otherwise fall back to session fingerprint
+  // Fingerprint headers override static headers for User-Agent, X-Goog-Api-Client, Client-Metadata
+  // and add X-Goog-QuotaUser, X-Client-Device-Id for unique device identity
+  const fingerprint = options?.fingerprint ?? getSessionFingerprint();
+  const fingerprintHeaders = buildFingerprintHeaders(fingerprint);
+  
+  // Apply fingerprint headers (override static with dynamic)
+  if (fingerprintHeaders["User-Agent"]) {
+    headers.set("User-Agent", fingerprintHeaders["User-Agent"]);
+  } else {
+    headers.set("User-Agent", selectedHeaders["User-Agent"]);
+  }
+  if (fingerprintHeaders["X-Goog-Api-Client"]) {
+    headers.set("X-Goog-Api-Client", fingerprintHeaders["X-Goog-Api-Client"]);
+  } else {
+    headers.set("X-Goog-Api-Client", selectedHeaders["X-Goog-Api-Client"]);
+  }
+  if (fingerprintHeaders["Client-Metadata"]) {
+    headers.set("Client-Metadata", fingerprintHeaders["Client-Metadata"]);
+  } else {
+    headers.set("Client-Metadata", selectedHeaders["Client-Metadata"]);
+  }
+  
+  // Add new fingerprint-specific headers for device identity
+  if (fingerprintHeaders["X-Goog-QuotaUser"]) {
+    headers.set("X-Goog-QuotaUser", fingerprintHeaders["X-Goog-QuotaUser"]);
+  }
+  if (fingerprintHeaders["X-Client-Device-Id"]) {
+    headers.set("X-Client-Device-Id", fingerprintHeaders["X-Client-Device-Id"]);
+  }
   // Optional debug header to observe tool normalization on the backend if surfaced
   if (toolDebugMissing > 0) {
     headers.set("X-Opencode-Tools-Debug", String(toolDebugMissing));

@@ -544,6 +544,21 @@ Most users don't need to configure anything — defaults work well.
 | **5+ accounts** | `"account_selection_strategy": "round-robin"` |
 | **Parallel agents** | Add `"pid_offset_enabled": true` |
 
+### Rate Limit Scheduling
+
+Control how the plugin handles rate limits:
+
+| Option | Default | What it does |
+|--------|---------|--------------|
+| `scheduling_mode` | `"cache_first"` | `"cache_first"` = wait for same account (preserves prompt cache), `"balance"` = switch immediately, `"performance_first"` = round-robin |
+| `max_cache_first_wait_seconds` | `60` | Max seconds to wait in cache_first mode before switching accounts |
+| `failure_ttl_seconds` | `3600` | Reset failure count after this many seconds (prevents old failures from permanently penalizing accounts) |
+
+**When to use each mode:**
+- **cache_first** (default): Best for long conversations. Waits for the same account to recover, preserving your prompt cache.
+- **balance**: Best for quick tasks. Switches accounts immediately when rate-limited for maximum availability.
+- **performance_first**: Best for many short requests. Distributes load evenly across all accounts.
+
 ### App Behavior
 
 | Option | Default | What it does |
