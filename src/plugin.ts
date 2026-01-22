@@ -1203,6 +1203,7 @@ export const createAntigravityPlugin = (providerId: string) => async (
                       mode: config.web_search.default_mode,
                       threshold: config.web_search.grounding_threshold
                     } : undefined,
+                    fingerprint: account.fingerprint,
                   },
                 );
 

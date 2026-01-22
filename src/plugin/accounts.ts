@@ -3,6 +3,7 @@ import { loadAccounts, saveAccounts, type AccountStorageV3, type RateLimitStateV
 import type { OAuthAuthDetails, RefreshParts } from "./types";
 import type { AccountSelectionStrategy } from "./config/schema";
 import { getHealthTracker, getTokenTracker, selectHybridAccount, type AccountWithMetrics } from "./rotation";
+import { generateFingerprint, type Fingerprint } from "./fingerprint";
 
 export type { ModelFamily, HeaderStyle, CooldownReason } from "./storage";
 export type { AccountSelectionStrategy } from "./config/schema";
@@ -91,6 +92,8 @@ export interface ManagedAccount {
   cooldownReason?: CooldownReason;
   touchedForQuota: Record<string, number>;
   consecutiveFailures?: number;
+  /** Per-account device fingerprint for rate limit mitigation */
+  fingerprint?: import("./fingerprint").Fingerprint;
 }
 
 function nowMs(): number {
@@ -234,6 +237,8 @@ export class AccountManager {
             coolingDownUntil: acc.coolingDownUntil,
             cooldownReason: acc.cooldownReason,
             touchedForQuota: {},
+            // Use stored fingerprint or generate new one for rate limit mitigation
+            fingerprint: acc.fingerprint ?? generateFingerprint(),
           };
         })
         .filter((a): a is ManagedAccount => a !== null);
@@ -702,6 +707,7 @@ export class AccountManager {
         rateLimitResetTimes: Object.keys(a.rateLimitResetTimes).length > 0 ? a.rateLimitResetTimes : undefined,
         coolingDownUntil: a.coolingDownUntil,
         cooldownReason: a.cooldownReason,
+        fingerprint: a.fingerprint,
       })),
       activeIndex: claudeIndex,
       activeIndexByFamily: {

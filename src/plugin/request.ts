@@ -68,7 +68,7 @@ import {
   type ThinkingTier,
 } from "./transform";
 import { detectErrorType } from "./recovery";
-import { getSessionFingerprint, buildFingerprintHeaders } from "./fingerprint";
+import { getSessionFingerprint, buildFingerprintHeaders, type Fingerprint } from "./fingerprint";
 
 const log = createLogger("request");
 
@@ -604,6 +604,8 @@ export interface PrepareRequestOptions {
   claudeToolHardening?: boolean;
   /** Google Search configuration (global default) */
   googleSearch?: GoogleSearchConfig;
+  /** Per-account fingerprint for rate limit mitigation. Falls back to session fingerprint if not provided. */
+  fingerprint?: Fingerprint;
 }
 
 export function prepareAntigravityRequest(
@@ -1386,10 +1388,10 @@ export function prepareAntigravityRequest(
 
   const selectedHeaders = headerStyle === "gemini-cli" ? GEMINI_CLI_HEADERS : ANTIGRAVITY_HEADERS;
   
-  // Use session fingerprint for dynamic device identity (rate limit mitigation)
+  // Use per-account fingerprint if provided, otherwise fall back to session fingerprint
   // Fingerprint headers override static headers for User-Agent, X-Goog-Api-Client, Client-Metadata
   // and add X-Goog-QuotaUser, X-Client-Device-Id for unique device identity
-  const fingerprint = getSessionFingerprint();
+  const fingerprint = options?.fingerprint ?? getSessionFingerprint();
   const fingerprintHeaders = buildFingerprintHeaders(fingerprint);
   
   // Apply fingerprint headers (override static with dynamic)
