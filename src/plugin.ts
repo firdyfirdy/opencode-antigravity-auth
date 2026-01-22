@@ -1344,7 +1344,7 @@ export const createAntigravityPlugin = (providerId: string) => async (
                     await sleep(FIRST_RETRY_DELAY_MS, abortSignal);
                     
                     if (config.switch_on_first_rate_limit && accountCount > 1) {
-                      accountManager.markRateLimitedWithReason(account, family, headerStyle, model, rateLimitReason, serverRetryMs);
+                      accountManager.markRateLimitedWithReason(account, family, headerStyle, model, rateLimitReason, serverRetryMs, config.failure_ttl_seconds * 1000);
                       shouldSwitchAccount = true;
                       break;
                     }
@@ -1354,7 +1354,7 @@ export const createAntigravityPlugin = (providerId: string) => async (
                     continue;
                   }
 
-                  accountManager.markRateLimitedWithReason(account, family, headerStyle, model, rateLimitReason, serverRetryMs);
+                  accountManager.markRateLimitedWithReason(account, family, headerStyle, model, rateLimitReason, serverRetryMs, config.failure_ttl_seconds * 1000);
 
                   accountManager.requestSaveToDisk();
 

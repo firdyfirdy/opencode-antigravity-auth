@@ -122,6 +122,8 @@ export interface ManagedAccount {
   cooldownReason?: CooldownReason;
   touchedForQuota: Record<string, number>;
   consecutiveFailures?: number;
+  /** Timestamp of last failure for TTL-based reset of consecutiveFailures */
+  lastFailureTime?: number;
   /** Per-account device fingerprint for rate limit mitigation */
   fingerprint?: import("./fingerprint").Fingerprint;
 }
@@ -508,14 +510,23 @@ export class AccountManager {
     headerStyle: HeaderStyle,
     model: string | null | undefined,
     reason: RateLimitReason,
-    retryAfterMs?: number | null
+    retryAfterMs?: number | null,
+    failureTtlMs: number = 3600_000, // Default 1 hour TTL
   ): number {
+    const now = nowMs();
+    
+    // TTL-based reset: if last failure was more than failureTtlMs ago, reset count
+    if (account.lastFailureTime && (now - account.lastFailureTime) > failureTtlMs) {
+      account.consecutiveFailures = 0;
+    }
+    
     const failures = (account.consecutiveFailures ?? 0) + 1;
     account.consecutiveFailures = failures;
+    account.lastFailureTime = now;
     
     const backoffMs = calculateBackoffMs(reason, failures - 1, retryAfterMs);
     const key = getQuotaKey(family, headerStyle, model);
-    account.rateLimitResetTimes[key] = nowMs() + backoffMs;
+    account.rateLimitResetTimes[key] = now + backoffMs;
     
     return backoffMs;
   }
