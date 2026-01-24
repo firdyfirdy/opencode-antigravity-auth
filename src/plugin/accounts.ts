@@ -127,6 +127,7 @@ export interface ManagedAccount {
   parts: RefreshParts;
   access?: string;
   expires?: number;
+  enabled: boolean;
   rateLimitResetTimes: RateLimitStateV3;
   lastSwitchReason?: "rate-limit" | "initial" | "rotation";
   coolingDownUntil?: number;
@@ -277,6 +278,7 @@ export class AccountManager {
             },
             access: matchesFallback ? authFallback?.access : undefined,
             expires: matchesFallback ? authFallback?.expires : undefined,
+            enabled: acc.enabled !== false,
             rateLimitResetTimes: acc.rateLimitResetTimes ?? {},
             lastSwitchReason: acc.lastSwitchReason,
             coolingDownUntil: acc.coolingDownUntil,
@@ -319,6 +321,7 @@ export class AccountManager {
           parts: authParts,
           access: authFallback.access,
           expires: authFallback.expires,
+          enabled: true,
           rateLimitResetTimes: {},
           touchedForQuota: {},
         };
@@ -342,6 +345,7 @@ export class AccountManager {
             parts,
             access: authFallback.access,
             expires: authFallback.expires,
+            enabled: true,
             rateLimitResetTimes: {},
             touchedForQuota: {},
           },
@@ -354,7 +358,15 @@ export class AccountManager {
   }
 
   getAccountCount(): number {
+    return this.getEnabledAccounts().length;
+  }
+
+  getTotalAccountCount(): number {
     return this.accounts.length;
+  }
+
+  getEnabledAccounts(): ManagedAccount[] {
+    return this.accounts.filter((account) => account.enabled);
   }
 
   getAccountsSnapshot(): ManagedAccount[] {

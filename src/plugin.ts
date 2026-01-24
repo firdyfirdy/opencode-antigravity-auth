@@ -37,6 +37,7 @@ import { AccountManager, type ModelFamily, parseRateLimitReason, calculateBackof
 import { createAutoUpdateCheckerHook } from "./hooks/auto-update-checker";
 import { loadConfig, initRuntimeConfig, type AntigravityConfig } from "./plugin/config";
 import { createSessionRecoveryHook, getRecoverySuccessToast } from "./plugin/recovery";
+import { checkAccountsQuota } from "./plugin/quota";
 import { initDiskSignatureCache } from "./plugin/cache";
 import { createProactiveRefreshQueue, type ProactiveRefreshQueue } from "./plugin/refresh-queue";
 import { initLogger, createLogger } from "./plugin/logger";
@@ -306,6 +307,7 @@ async function persistAccountPool(
         managedProjectId: parts.managedProjectId,
         addedAt: now,
         lastUsed: now,
+        enabled: true,
       });
       continue;
     }
@@ -1830,39 +1832,93 @@ export const createAntigravityPlugin = (providerId: string) => async (
             let refreshAccountIndex: number | undefined;
             const existingStorage = await loadAccounts();
             if (existingStorage && existingStorage.accounts.length > 0) {
-              const now = Date.now();
-              const existingAccounts = existingStorage.accounts.map((acc, idx) => {
-                let status: 'active' | 'rate-limited' | 'expired' | 'unknown' = 'unknown';
-                
-                const rateLimits = acc.rateLimitResetTimes;
-                if (rateLimits) {
-                  const isRateLimited = Object.values(rateLimits).some(
-                    (resetTime) => typeof resetTime === 'number' && resetTime > now
-                  );
-                  if (isRateLimited) {
-                    status = 'rate-limited';
+              let menuResult;
+              while (true) {
+                const now = Date.now();
+                const existingAccounts = existingStorage.accounts.map((acc, idx) => {
+                  let status: 'active' | 'rate-limited' | 'expired' | 'unknown' = 'unknown';
+                  
+                  const rateLimits = acc.rateLimitResetTimes;
+                  if (rateLimits) {
+                    const isRateLimited = Object.values(rateLimits).some(
+                      (resetTime) => typeof resetTime === 'number' && resetTime > now
+                    );
+                    if (isRateLimited) {
+                      status = 'rate-limited';
+                    } else {
+                      status = 'active';
+                    }
                   } else {
                     status = 'active';
                   }
-                } else {
-                  status = 'active';
+
+                  if (acc.coolingDownUntil && acc.coolingDownUntil > now) {
+                    status = 'rate-limited';
+                  }
+
+                  return {
+                    email: acc.email,
+                    index: idx,
+                    addedAt: acc.addedAt,
+                    lastUsed: acc.lastUsed,
+                    status,
+                    isCurrentAccount: idx === (existingStorage.activeIndex ?? 0),
+                    enabled: acc.enabled !== false,
+                  };
+                });
+                
+                menuResult = await promptLoginMode(existingAccounts);
+
+                if (menuResult.mode === "check") {
+                  console.log("\nChecking quotas for all accounts...");
+                  const results = await checkAccountsQuota(existingStorage.accounts, client, providerId);
+                  for (const res of results) {
+                    const label = res.email || `Account ${res.index + 1}`;
+                    const disabledStr = res.disabled ? " (disabled)" : "";
+                    console.log(`\n${res.index + 1}. ${label}${disabledStr}`);
+                    if (res.status === "error") {
+                      console.log(`   Error: ${res.error}`);
+                      continue;
+                    }
+                    if (!res.quota || Object.keys(res.quota.groups).length === 0) {
+                      console.log("   No quota information available.");
+                      if (res.quota?.error) console.log(`   Error: ${res.quota.error}`);
+                      continue;
+                    }
+                    const printGrp = (name: string, group: any) => {
+                      if (!group) return;
+                      const remaining = typeof group.remainingFraction === 'number' 
+                        ? `${Math.round(group.remainingFraction * 100)}%` 
+                        : 'UNKNOWN';
+                      const resetStr = group.resetTime ? `, resets in ${formatWaitTime(Date.parse(group.resetTime) - Date.now())}` : '';
+                      console.log(`   ${name}: ${remaining}${resetStr}`);
+                    };
+                    printGrp("Claude", res.quota.groups.claude);
+                    printGrp("Gemini 3 Pro", res.quota.groups["gemini-pro"]);
+                    printGrp("Gemini 3 Flash", res.quota.groups["gemini-flash"]);
+                    if (res.updatedAccount) {
+                      existingStorage.accounts[res.index] = res.updatedAccount;
+                      await saveAccounts(existingStorage);
+                    }
+                  }
+                  console.log("");
+                  continue;
                 }
 
-                if (acc.coolingDownUntil && acc.coolingDownUntil > now) {
-                  status = 'rate-limited';
+                if (menuResult.mode === "manage") {
+                  if (menuResult.toggleAccountIndex !== undefined) {
+                    const acc = existingStorage.accounts[menuResult.toggleAccountIndex];
+                    if (acc) {
+                      acc.enabled = acc.enabled === false;
+                      await saveAccounts(existingStorage);
+                      console.log(`\nAccount ${acc.email || menuResult.toggleAccountIndex + 1} ${acc.enabled ? 'enabled' : 'disabled'}.\n`);
+                    }
+                  }
+                  continue;
                 }
 
-                return {
-                  email: acc.email,
-                  index: idx,
-                  addedAt: acc.addedAt,
-                  lastUsed: acc.lastUsed,
-                  status,
-                  isCurrentAccount: idx === (existingStorage.activeIndex ?? 0),
-                };
-              });
-              
-              const menuResult = await promptLoginMode(existingAccounts);
+                break;
+              }
               
               if (menuResult.mode === "cancel") {
                 return {
