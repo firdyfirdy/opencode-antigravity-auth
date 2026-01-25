@@ -29,7 +29,7 @@ export async function promptAddAnotherAccount(currentCount: number): Promise<boo
   }
 }
 
-export type LoginMode = "add" | "fresh" | "cancel";
+export type LoginMode = "add" | "fresh" | "manage" | "check" | "cancel";
 
 export interface ExistingAccountInfo {
   email?: string;
@@ -38,12 +38,14 @@ export interface ExistingAccountInfo {
   lastUsed?: number;
   status?: AccountStatus;
   isCurrentAccount?: boolean;
+  enabled?: boolean;
 }
 
 export interface LoginMenuResult {
   mode: LoginMode;
   deleteAccountIndex?: number;
   refreshAccountIndex?: number;
+  toggleAccountIndex?: number;
   deleteAll?: boolean;
 }
 
@@ -58,7 +60,7 @@ async function promptLoginModeFallback(existingAccounts: ExistingAccountInfo[]):
     console.log("");
 
     while (true) {
-      const answer = await rl.question("(a)dd new account(s) or (f)resh start? [a/f]: ");
+      const answer = await rl.question("(a)dd new, (f)resh start, (m)anage, (c)heck quotas? [a/f/m/c]: ");
       const normalized = answer.trim().toLowerCase();
 
       if (normalized === "a" || normalized === "add") {
@@ -67,8 +69,14 @@ async function promptLoginModeFallback(existingAccounts: ExistingAccountInfo[]):
       if (normalized === "f" || normalized === "fresh") {
         return { mode: "fresh" };
       }
+      if (normalized === "m" || normalized === "manage") {
+        return { mode: "manage" };
+      }
+      if (normalized === "c" || normalized === "check") {
+        return { mode: "check" };
+      }
 
-      console.log("Please enter 'a' to add accounts or 'f' to start fresh.");
+      console.log("Please enter 'a', 'f', 'm', or 'c'.");
     }
   } finally {
     rl.close();
@@ -87,6 +95,7 @@ export async function promptLoginMode(existingAccounts: ExistingAccountInfo[]): 
     lastUsed: acc.lastUsed,
     status: acc.status,
     isCurrentAccount: acc.isCurrentAccount,
+    enabled: acc.enabled,
   }));
 
   console.log("");
@@ -98,6 +107,12 @@ export async function promptLoginMode(existingAccounts: ExistingAccountInfo[]): 
       case "add":
         return { mode: "add" };
 
+      case "check":
+        return { mode: "check" };
+
+      case "manage":
+        return { mode: "manage" };
+
       case "select-account": {
         const accountAction = await showAccountDetails(action.account);
         if (accountAction === "delete") {
@@ -105,6 +120,9 @@ export async function promptLoginMode(existingAccounts: ExistingAccountInfo[]): 
         }
         if (accountAction === "refresh") {
           return { mode: "add", refreshAccountIndex: action.account.index };
+        }
+        if (accountAction === "toggle") {
+          return { mode: "manage", toggleAccountIndex: action.account.index };
         }
         continue;
       }

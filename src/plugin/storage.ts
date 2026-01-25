@@ -182,6 +182,7 @@ export interface AccountMetadataV3 {
   managedProjectId?: string;
   addedAt: number;
   lastUsed: number;
+  enabled?: boolean;
   lastSwitchReason?: "rate-limit" | "initial" | "rotation";
   rateLimitResetTimes?: RateLimitStateV3;
   coolingDownUntil?: number;

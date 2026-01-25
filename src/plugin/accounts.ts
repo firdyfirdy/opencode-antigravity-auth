@@ -127,6 +127,7 @@ export interface ManagedAccount {
   parts: RefreshParts;
   access?: string;
   expires?: number;
+  enabled: boolean;
   rateLimitResetTimes: RateLimitStateV3;
   lastSwitchReason?: "rate-limit" | "initial" | "rotation";
   coolingDownUntil?: number;
@@ -277,6 +278,7 @@ export class AccountManager {
             },
             access: matchesFallback ? authFallback?.access : undefined,
             expires: matchesFallback ? authFallback?.expires : undefined,
+            enabled: acc.enabled !== false,
             rateLimitResetTimes: acc.rateLimitResetTimes ?? {},
             lastSwitchReason: acc.lastSwitchReason,
             coolingDownUntil: acc.coolingDownUntil,
@@ -319,6 +321,7 @@ export class AccountManager {
           parts: authParts,
           access: authFallback.access,
           expires: authFallback.expires,
+          enabled: true,
           rateLimitResetTimes: {},
           touchedForQuota: {},
         };
@@ -342,6 +345,7 @@ export class AccountManager {
             parts,
             access: authFallback.access,
             expires: authFallback.expires,
+            enabled: true,
             rateLimitResetTimes: {},
             touchedForQuota: {},
           },
@@ -354,7 +358,15 @@ export class AccountManager {
   }
 
   getAccountCount(): number {
+    return this.getEnabledAccounts().length;
+  }
+
+  getTotalAccountCount(): number {
     return this.accounts.length;
+  }
+
+  getEnabledAccounts(): ManagedAccount[] {
+    return this.accounts.filter((account) => account.enabled !== false);
   }
 
   getAccountsSnapshot(): ManagedAccount[] {
@@ -413,16 +425,18 @@ export class AccountManager {
       const healthTracker = getHealthTracker();
       const tokenTracker = getTokenTracker();
       
-      const accountsWithMetrics: AccountWithMetrics[] = this.accounts.map(acc => {
-        clearExpiredRateLimits(acc);
-        return {
-          index: acc.index,
-          lastUsed: acc.lastUsed,
-          healthScore: healthTracker.getScore(acc.index),
-          isRateLimited: isRateLimitedForFamily(acc, family, model),
-          isCoolingDown: this.isAccountCoolingDown(acc),
-        };
-      });
+      const accountsWithMetrics: AccountWithMetrics[] = this.accounts
+        .filter(acc => acc.enabled !== false)
+        .map(acc => {
+          clearExpiredRateLimits(acc);
+          return {
+            index: acc.index,
+            lastUsed: acc.lastUsed,
+            healthScore: healthTracker.getScore(acc.index),
+            isRateLimited: isRateLimitedForFamily(acc, family, model),
+            isCoolingDown: this.isAccountCoolingDown(acc),
+          };
+        });
 
       // Get current account index for stickiness
       const currentIndex = this.currentAccountIndexByFamily[family] ?? null;
@@ -470,7 +484,7 @@ export class AccountManager {
   getNextForFamily(family: ModelFamily, model?: string | null, headerStyle: HeaderStyle = "antigravity"): ManagedAccount | null {
     const available = this.accounts.filter((a) => {
       clearExpiredRateLimits(a);
-      return !isRateLimitedForHeaderStyle(a, family, headerStyle, model) && !this.isAccountCoolingDown(a);
+      return a.enabled !== false && !isRateLimitedForHeaderStyle(a, family, headerStyle, model) && !this.isAccountCoolingDown(a);
     });
 
     if (available.length === 0) {
@@ -604,7 +618,8 @@ export class AccountManager {
   getFreshAccountsForQuota(quotaKey: string, family: ModelFamily, model?: string | null): ManagedAccount[] {
     return this.accounts.filter(acc => {
       clearExpiredRateLimits(acc);
-      return this.isFreshForQuota(acc, quotaKey) && 
+      return acc.enabled !== false &&
+             this.isFreshForQuota(acc, quotaKey) && 
              !isRateLimitedForFamily(acc, family, model) && 
              !this.isAccountCoolingDown(acc);
     });
@@ -697,9 +712,9 @@ export class AccountManager {
   ): number {
     const available = this.accounts.filter((a) => {
       clearExpiredRateLimits(a);
-      return strict && headerStyle
+      return a.enabled !== false && (strict && headerStyle
         ? !isRateLimitedForHeaderStyle(a, family, headerStyle, model)
-        : !isRateLimitedForFamily(a, family, model);
+        : !isRateLimitedForFamily(a, family, model));
     });
     if (available.length > 0) {
       return 0;

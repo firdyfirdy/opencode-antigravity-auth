@@ -11,15 +11,18 @@ export interface AccountInfo {
   lastUsed?: number;
   status?: AccountStatus;
   isCurrentAccount?: boolean;
+  enabled?: boolean;
 }
 
 export type AuthMenuAction =
   | { type: 'add' }
   | { type: 'select-account'; account: AccountInfo }
   | { type: 'delete-all' }
+  | { type: 'check' }
+  | { type: 'manage' }
   | { type: 'cancel' };
 
-export type AccountAction = 'back' | 'delete' | 'refresh' | 'cancel';
+export type AccountAction = 'back' | 'delete' | 'refresh' | 'toggle' | 'cancel';
 
 function formatRelativeTime(timestamp: number | undefined): string {
   if (!timestamp) return 'never';
@@ -48,11 +51,14 @@ function getStatusBadge(status: AccountStatus | undefined): string {
 export async function showAuthMenu(accounts: AccountInfo[]): Promise<AuthMenuAction> {
   const items: MenuItem<AuthMenuAction>[] = [
     { label: 'Add new account', value: { type: 'add' } },
+    { label: 'Check quotas', value: { type: 'check' } },
+    { label: 'Manage accounts (enable/disable)', value: { type: 'manage' } },
 
     ...accounts.map(account => {
       const badge = getStatusBadge(account.status);
+      const disabledBadge = account.enabled === false ? ` ${ANSI.red}[disabled]${ANSI.reset}` : '';
       const label = account.email || `Account ${account.index + 1}`;
-      const fullLabel = badge ? `${label} ${badge}` : label;
+      const fullLabel = `${label}${badge ? ' ' + badge : ''}${disabledBadge}`;
       
       return {
         label: fullLabel,
@@ -84,9 +90,10 @@ export async function showAuthMenu(accounts: AccountInfo[]): Promise<AuthMenuAct
 export async function showAccountDetails(account: AccountInfo): Promise<AccountAction> {
   const label = account.email || `Account ${account.index + 1}`;
   const badge = getStatusBadge(account.status);
+  const disabledBadge = account.enabled === false ? ` ${ANSI.red}[disabled]${ANSI.reset}` : '';
   
   console.log('');
-  console.log(`${ANSI.bold}Account: ${label}${badge ? ' ' + badge : ''}${ANSI.reset}`);
+  console.log(`${ANSI.bold}Account: ${label}${badge ? ' ' + badge : ''}${disabledBadge}${ANSI.reset}`);
   console.log(`${ANSI.dim}Added: ${formatDate(account.addedAt)}${ANSI.reset}`);
   console.log(`${ANSI.dim}Last used: ${formatRelativeTime(account.lastUsed)}${ANSI.reset}`);
   console.log('');
@@ -94,6 +101,7 @@ export async function showAccountDetails(account: AccountInfo): Promise<AccountA
   while (true) {
     const result = await select([
       { label: 'Back', value: 'back' as const },
+      { label: account.enabled === false ? 'Enable account' : 'Disable account', value: 'toggle' as const, color: account.enabled === false ? 'green' : 'yellow' },
       { label: 'Refresh token', value: 'refresh' as const, color: 'cyan' },
       { label: 'Delete this account', value: 'delete' as const, color: 'red' },
     ], { 
