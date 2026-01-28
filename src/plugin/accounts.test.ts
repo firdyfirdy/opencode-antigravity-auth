@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AccountManager, type ModelFamily, type HeaderStyle, parseRateLimitReason, calculateBackoffMs, type RateLimitReason } from "./accounts";
+import { AccountManager, type ModelFamily, type HeaderStyle, parseRateLimitReason, calculateBackoffMs, type RateLimitReason, resolveQuotaGroup } from "./accounts";
 import type { AccountStorageV3 } from "./storage";
 import type { OAuthAuthDetails } from "./types";
 
@@ -1830,5 +1830,29 @@ describe("AccountManager", () => {
 
       vi.useRealTimers();
     });
+  });
+});
+
+describe("resolveQuotaGroup", () => {
+  it("returns model-based quota group when model is provided", () => {
+    expect(resolveQuotaGroup("claude", "claude-opus-4-5")).toBe("claude");
+    expect(resolveQuotaGroup("gemini", "gemini-2.5-pro")).toBe("gemini-pro");
+    expect(resolveQuotaGroup("gemini", "gemini-2.5-flash")).toBe("gemini-flash");
+  });
+
+  it("falls back to claude for claude family when no model", () => {
+    expect(resolveQuotaGroup("claude", null)).toBe("claude");
+    expect(resolveQuotaGroup("claude", undefined)).toBe("claude");
+  });
+
+  it("falls back to gemini-pro for gemini family when no model", () => {
+    expect(resolveQuotaGroup("gemini", null)).toBe("gemini-pro");
+    expect(resolveQuotaGroup("gemini", undefined)).toBe("gemini-pro");
+  });
+
+  it("model takes precedence over family", () => {
+    // Even if family says claude, model determines the quota group
+    expect(resolveQuotaGroup("gemini", "gemini-2.5-flash")).toBe("gemini-flash");
+    expect(resolveQuotaGroup("gemini", "gemini-3-pro")).toBe("gemini-pro");
   });
 });

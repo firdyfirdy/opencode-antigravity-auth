@@ -6,6 +6,7 @@ import { getHealthTracker, getTokenTracker, selectHybridAccount, type AccountWit
 import { generateFingerprint, type Fingerprint, type FingerprintVersion, MAX_FINGERPRINT_HISTORY } from "./fingerprint";
 import type { QuotaGroup, QuotaGroupSummary } from "./quota";
 import { getModelFamily } from "./transform/model-resolver";
+import { debugLogToFile } from "./debug";
 
 export type { ModelFamily, HeaderStyle, CooldownReason } from "./storage";
 export type { AccountSelectionStrategy } from "./config/schema";
@@ -216,6 +217,25 @@ function clearExpiredRateLimits(account: ManagedAccount): void {
   }
 }
 
+/**
+ * Resolve the quota group for soft quota checks.
+ * 
+ * When a model string is available, we can precisely determine the quota group.
+ * When model is null/undefined, we fall back based on family:
+ * - Claude → "claude" quota group
+ * - Gemini → "gemini-pro" (conservative fallback; may misclassify flash models)
+ * 
+ * @param family - The model family ("claude" | "gemini")
+ * @param model - Optional model string for precise resolution
+ * @returns The QuotaGroup to use for soft quota checks
+ */
+export function resolveQuotaGroup(family: ModelFamily, model?: string | null): QuotaGroup {
+  if (model) {
+    return getModelFamily(model);
+  }
+  return family === "claude" ? "claude" : "gemini-pro";
+}
+
 function isOverSoftQuotaThreshold(
   account: ManagedAccount,
   family: ModelFamily,
@@ -230,14 +250,24 @@ function isOverSoftQuotaThreshold(
   const age = nowMs() - account.cachedQuotaUpdatedAt;
   if (age > cacheTtlMs) return false;
   
-  const quotaGroup: QuotaGroup = model ? getModelFamily(model) : (family === "claude" ? "claude" : "gemini-pro");
+  const quotaGroup = resolveQuotaGroup(family, model);
   
   const groupData = account.cachedQuota[quotaGroup];
   if (groupData?.remainingFraction == null) return false;
   
   const remainingFraction = Math.max(0, Math.min(1, groupData.remainingFraction));
   const usedPercent = (1 - remainingFraction) * 100;
-  return usedPercent >= thresholdPercent;
+  const isOverThreshold = usedPercent >= thresholdPercent;
+  
+  if (isOverThreshold) {
+    const accountLabel = account.email || `Account ${account.index + 1}`;
+    debugLogToFile(
+      `[SoftQuota] Skipping ${accountLabel}: ${quotaGroup} usage ${usedPercent.toFixed(1)}% >= threshold ${thresholdPercent}%` +
+      (groupData.resetTime ? ` (resets: ${groupData.resetTime})` : '')
+    );
+  }
+  
+  return isOverThreshold;
 }
 
 export function computeSoftQuotaCacheTtlMs(
@@ -1029,7 +1059,7 @@ export class AccountManager {
     // For gemini family, we MUST have the model to distinguish pro vs flash quotas.
     // Fail-open (return null = no wait info) if model is missing to avoid blocking on wrong quota.
     if (!model && family !== "claude") return null;
-    const quotaGroup: QuotaGroup = model ? getModelFamily(model) : "claude";
+    const quotaGroup = resolveQuotaGroup(family, model);
     const now = nowMs();
     const waitTimes: number[] = [];
     
