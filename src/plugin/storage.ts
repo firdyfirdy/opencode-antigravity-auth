@@ -230,6 +230,18 @@ const LOCK_OPTIONS = {
   },
 };
 
+/**
+ * Ensures the file has secure permissions (0600) on POSIX systems.
+ * This is a best-effort operation and ignores errors on Windows/unsupported FS.
+ */
+async function ensureSecurePermissions(path: string): Promise<void> {
+  try {
+    await fs.chmod(path, 0o600);
+  } catch {
+    // Ignore errors (e.g. Windows, file doesn't exist, FS doesn't support chmod)
+  }
+}
+
 async function ensureFileExists(path: string): Promise<void> {
   try {
     await fs.access(path);
@@ -238,7 +250,7 @@ async function ensureFileExists(path: string): Promise<void> {
     await fs.writeFile(
       path,
       JSON.stringify({ version: 3, accounts: [], activeIndex: 0 }, null, 2),
-      "utf-8",
+      { encoding: "utf-8", mode: 0o600 },
     );
   }
 }
@@ -437,6 +449,9 @@ export function migrateV2ToV3(v2: AccountStorage): AccountStorageV3 {
 export async function loadAccounts(): Promise<AccountStorageV3 | null> {
   try {
     const path = getStoragePath();
+    // Ensure permissions are correct on load (fixes existing files)
+    await ensureSecurePermissions(path);
+
     const content = await fs.readFile(path, "utf-8");
     const data = JSON.parse(content) as AnyAccountStorage;
 
@@ -552,6 +567,9 @@ export async function saveAccounts(storage: AccountStorageV3): Promise<void> {
 async function loadAccountsUnsafe(): Promise<AccountStorageV3 | null> {
   try {
     const path = getStoragePath();
+    // Ensure permissions are correct on load (fixes existing files)
+    await ensureSecurePermissions(path);
+
     const content = await fs.readFile(path, "utf-8");
     const parsed = JSON.parse(content);
 
