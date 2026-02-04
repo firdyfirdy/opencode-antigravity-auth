@@ -1133,7 +1133,7 @@ export const createAntigravityPlugin = (providerId: string) => async (
                 const enabledAccounts = accountManager.getEnabledAccounts();
                 const enabledPosition = enabledAccounts.findIndex(a => a.index === account.index) + 1;
                 await showToast(
-                  `Use ${accountLabel} (${enabledPosition}/${enabledAccounts})`,
+                  `Use ${accountLabel} (${enabledPosition}/${enabledAccounts.length})`,
                   "info"
                 );
                 accountManager.markToastShown(account.index);
