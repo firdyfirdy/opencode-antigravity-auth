@@ -1583,6 +1583,9 @@ export const createAntigravityPlugin = (providerId: string) => async (
                         await showToast(`Rate limited again. Switching account in 5s...${quotaMsg}`, "warning");
                         await sleep(SWITCH_ACCOUNT_DELAY_MS, abortSignal);
 
+                        // Sync enabled status from disk in case it was disabled in background
+                        await accountManager.syncEnabledStatusFromDisk();
+
                         lastFailure = {
                           response,
                           streaming: prepared.streaming,
