@@ -775,7 +775,20 @@ export const createAntigravityPlugin = (providerId: string) => async (
   });
 
   // Event handler for session recovery and updates
+  let hasShownStartupToast = false;
   const eventHandler = async (input: { event: { type: string; properties?: unknown } }) => {
+    // Show one-time startup toast
+    if (!hasShownStartupToast && input.event.type === "session.created") {
+      hasShownStartupToast = true;
+      client.tui.showToast({
+        body: {
+          title: "Antigravity Plugin",
+          message: "Update Verified!",
+          variant: "success" as const,
+        },
+      }).catch(() => { });
+    }
+
     // Forward to update checker
     await updateChecker.event(input);
 
