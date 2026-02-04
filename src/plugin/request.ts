@@ -1570,7 +1570,7 @@ export async function transformAntigravityResponse(
       if (errorBody?.error) {
         const debugInfo = `\n\n[Debug Info]\nAccount: ${account || "Unknown"}\nRequested Model: ${requestedModel || "Unknown"}\nEffective Model: ${effectiveModel || "Unknown"}\nProject: ${projectId || "Unknown"}\nEndpoint: ${endpoint || "Unknown"}\nStatus: ${response.status}\nRequest ID: ${headers.get("x-request-id") || "N/A"}${toolDebugMissing !== undefined ? `\nTool Debug Missing: ${toolDebugMissing}` : ""}${toolDebugSummary ? `\nTool Debug Summary: ${toolDebugSummary}` : ""}${toolDebugPayload ? `\nTool Debug Payload: ${toolDebugPayload}` : ""}`;
         const injectedDebug = debugText ? `\n\n${debugText}` : "";
-        errorBody.error.message = (errorBody.error.message || "Unknown error") + debugInfo + injectedDebug;
+        errorBody.error.message = (errorBody.error.message || "Unknown error") + injectedDebug + debugInfo;
 
         // Check if this is a recoverable thinking error - throw to trigger retry
         const errorType = detectErrorType(errorBody.error.message || "");
