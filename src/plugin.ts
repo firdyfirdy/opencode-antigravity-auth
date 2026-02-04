@@ -1047,11 +1047,16 @@ export const createAntigravityPlugin = (providerId: string) => async (
                 throw new Error("No Antigravity accounts available. Run `opencode auth login`.");
               }
 
+
+              // Determine header style from model suffix (same logic as inside loop)
+              const initialHeaderStyle = getHeaderStyleFromUrl(urlString, family);
+              pushDebug(`account-select: family=${family} style=${initialHeaderStyle} strategy=${config.account_selection_strategy}`);
+
               const account = accountManager.getCurrentOrNextForFamily(
                 family,
                 model,
                 config.account_selection_strategy,
-                'antigravity',
+                initialHeaderStyle,
                 config.pid_offset_enabled,
               );
 
@@ -1128,7 +1133,7 @@ export const createAntigravityPlugin = (providerId: string) => async (
                 const enabledAccounts = accountManager.getEnabledAccounts();
                 const enabledPosition = enabledAccounts.findIndex(a => a.index === account.index) + 1;
                 await showToast(
-                  `${accountLabel} (${enabledPosition}/${accountCount})`,
+                  `Use ${accountLabel} (${enabledPosition}/${enabledAccounts})`,
                   "info"
                 );
                 accountManager.markToastShown(account.index);
