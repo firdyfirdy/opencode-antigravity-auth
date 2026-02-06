@@ -1085,6 +1085,31 @@ function sanitizeThinkingPart(part: Record<string, unknown>): Record<string, unk
   return stripCacheControlRecursively(part) as Record<string, unknown>;
 }
 
+function applySentinelSignature(part: Record<string, unknown>): Record<string, unknown> {
+  const updated = { ...part } as Record<string, unknown>;
+
+  if ("thoughtSignature" in updated) {
+    (updated as any).thoughtSignature = SKIP_THOUGHT_SIGNATURE;
+  }
+  if ("signature" in updated) {
+    (updated as any).signature = SKIP_THOUGHT_SIGNATURE;
+  }
+
+  if ((updated as any).thought === true && (updated as any).thoughtSignature === undefined) {
+    (updated as any).thoughtSignature = SKIP_THOUGHT_SIGNATURE;
+  }
+  if (
+    ((updated as any).type === "thinking"
+      || (updated as any).type === "redacted_thinking"
+      || (updated as any).type === "reasoning")
+    && (updated as any).signature === undefined
+  ) {
+    (updated as any).signature = SKIP_THOUGHT_SIGNATURE;
+  }
+
+  return updated;
+}
+
 function findLastAssistantIndex(contents: any[], roleValue: "model" | "assistant"): number {
   for (let i = contents.length - 1; i >= 0; i--) {
     const content = contents[i];
@@ -1106,6 +1131,37 @@ function filterContentArray(
   // User can opt-in to keep thinking via config: { "keep_thinking": true }
   if (isClaudeModel && !getKeepThinking()) {
     return stripAllThinkingBlocks(contentArray);
+  }
+
+  if (isClaudeModel) {
+    const filtered: any[] = [];
+
+    for (const item of contentArray) {
+      if (!item || typeof item !== "object") {
+        filtered.push(item);
+        continue;
+      }
+
+      if (isToolBlock(item)) {
+        filtered.push(item);
+        continue;
+      }
+
+      const isThinking = isThinkingPart(item);
+      const hasSignature = hasSignatureField(item);
+
+      if (!isThinking && !hasSignature) {
+        filtered.push(item);
+        continue;
+      }
+
+      const sanitized = sanitizeThinkingPart(item);
+      if (sanitized) {
+        filtered.push(applySentinelSignature(sanitized));
+      }
+    }
+
+    return filtered;
   }
 
   const filtered: any[] = [];
@@ -2814,4 +2870,3 @@ data: ${JSON.stringify({ type: "message_stop" })}
     },
   });
 }
-
