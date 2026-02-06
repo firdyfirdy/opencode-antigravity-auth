@@ -796,6 +796,16 @@ export class AccountManager {
     });
   }
 
+  setAccountEnabled(accountIndex: number, enabled: boolean): boolean {
+    const account = this.accounts[accountIndex];
+    if (!account) {
+      return false;
+    }
+    account.enabled = enabled;
+    this.requestSaveToDisk();
+    return true;
+  }
+
   removeAccount(account: ManagedAccount): boolean {
     const idx = this.accounts.indexOf(account);
     if (idx < 0) {
