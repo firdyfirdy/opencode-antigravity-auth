@@ -54,6 +54,9 @@ export const MODEL_ALIASES: Record<string, string> = {
   "gemini-claude-opus-4-5-thinking-low": "claude-opus-4-5-thinking",
   "gemini-claude-opus-4-5-thinking-medium": "claude-opus-4-5-thinking",
   "gemini-claude-opus-4-5-thinking-high": "claude-opus-4-5-thinking",
+  "gemini-claude-opus-4-6-thinking-low": "claude-opus-4-6-thinking",
+  "gemini-claude-opus-4-6-thinking-medium": "claude-opus-4-6-thinking",
+  "gemini-claude-opus-4-6-thinking-high": "claude-opus-4-6-thinking",
 
   // Image generation models - only gemini-3-pro-image is available via Antigravity API
   // Note: gemini-2.5-flash-image (Nano Banana) is NOT supported by Antigravity - only Google AI API

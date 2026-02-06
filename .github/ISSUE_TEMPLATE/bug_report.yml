@@ -46,6 +46,7 @@ body:
         - antigravity-claude-sonnet-4-5
         - antigravity-claude-sonnet-4-5-thinking
         - antigravity-claude-opus-4-5-thinking
+        - antigravity-claude-opus-4-6-thinking
         - gemini-2.5-flash
         - gemini-2.5-pro
         - gemini-3-flash-preview

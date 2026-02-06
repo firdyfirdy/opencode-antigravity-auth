@@ -81,6 +81,15 @@ export const OPENCODE_MODEL_DEFINITIONS: OpencodeModelDefinitions = {
       max: { thinkingConfig: { thinkingBudget: 32768 } },
     },
   },
+  "antigravity-claude-opus-4-6-thinking": {
+    name: "Claude Opus 4.6 Thinking (Antigravity)",
+    limit: { context: 200000, output: 64000 },
+    modalities: DEFAULT_MODALITIES,
+    variants: {
+      low: { thinkingConfig: { thinkingBudget: 8192 } },
+      max: { thinkingConfig: { thinkingBudget: 32768 } },
+    },
+  },
   "gemini-2.5-flash": {
     name: "Gemini 2.5 Flash (Gemini CLI)",
     limit: { context: 1048576, output: 65536 },

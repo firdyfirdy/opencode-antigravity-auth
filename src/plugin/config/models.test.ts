@@ -16,6 +16,7 @@ describe("OPENCODE_MODEL_DEFINITIONS", () => {
 
     expect(modelNames).toEqual([
       "antigravity-claude-opus-4-5-thinking",
+      "antigravity-claude-opus-4-6-thinking",
       "antigravity-claude-sonnet-4-5",
       "antigravity-claude-sonnet-4-5-thinking",
       "antigravity-gemini-3-flash",
@@ -48,6 +49,11 @@ describe("OPENCODE_MODEL_DEFINITIONS", () => {
     });
 
     expect(getModel("antigravity-claude-opus-4-5-thinking").variants).toEqual({
+      low: { thinkingConfig: { thinkingBudget: 8192 } },
+      max: { thinkingConfig: { thinkingBudget: 32768 } },
+    });
+
+    expect(getModel("antigravity-claude-opus-4-6-thinking").variants).toEqual({
       low: { thinkingConfig: { thinkingBudget: 8192 } },
       max: { thinkingConfig: { thinkingBudget: 32768 } },
     });
