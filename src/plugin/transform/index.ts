@@ -24,7 +24,6 @@ export {
   resolveModelForHeaderStyle,
   getModelFamily,
   MODEL_ALIASES,
-  MODEL_FALLBACKS,
   THINKING_TIER_BUDGETS,
   GEMINI_3_THINKING_LEVELS,
 } from "./model-resolver";

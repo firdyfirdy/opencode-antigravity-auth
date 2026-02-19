@@ -64,7 +64,7 @@ Authorization: Bearer {access_token}
 Content-Type: application/json
 User-Agent: antigravity/1.15.8 windows/amd64
 X-Goog-Api-Client: google-cloud-sdk vscode_cloudshelleditor/0.1
-Client-Metadata: {"ideType":"IDE_UNSPECIFIED","platform":"PLATFORM_UNSPECIFIED","pluginType":"GEMINI"}
+Client-Metadata: {"ideType":"ANTIGRAVITY","platform":"MACOS","pluginType":"GEMINI"}
 ```
 
 For streaming requests, also include:
@@ -78,10 +78,8 @@ Accept: text/event-stream
 
 | Model Name | Model ID | Type | Status |
 |------------|----------|------|--------|
-| Claude Sonnet 4.5 | `claude-sonnet-4-5` | Anthropic | ✅ Verified |
-| Claude Sonnet 4.5 Thinking | `claude-sonnet-4-5-thinking` | Anthropic | ✅ Verified |
-| Claude Opus 4.5 Thinking | `claude-opus-4-5-thinking` | Anthropic | ✅ Verified |
-| Claude Opus 4.6 Thinking | `claude-opus-4-6-thinking` | Anthropic | ⏳ Pending |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` | Anthropic | ✅ Verified |
+| Claude Opus 4.6 Thinking | `claude-opus-4-6-thinking` | Anthropic | ✅ Verified |
 | Gemini 3 Pro High | `gemini-3-pro-high` | Google | ✅ Verified |
 | Gemini 3 Pro Low | `gemini-3-pro-low` | Google | ✅ Verified |
 | GPT-OSS 120B Medium | `gpt-oss-120b-medium` | Other | ✅ Verified |
@@ -365,7 +363,7 @@ The underlying API uses these tool formats:
       "candidatesTokenCount": 4,
       "totalTokenCount": 20
     },
-    "modelVersion": "claude-sonnet-4-5",
+    "modelVersion": "claude-sonnet-4-6",
     "responseId": "msg_vrtx_..."
   },
   "traceId": "abc123..."
@@ -581,7 +579,7 @@ The following Anthropic/Vertex AI features are **NOT supported**:
 ```json
 {
   "project": "my-project-id",
-  "model": "claude-sonnet-4-5",
+  "model": "claude-sonnet-4-6",
   "request": {
     "contents": [
       {
@@ -624,7 +622,7 @@ The following Anthropic/Vertex AI features are **NOT supported**:
 | Endpoint | `cloudcode-pa.googleapis.com` | `aiplatform.googleapis.com` |
 | Request format | Gemini-style `contents` | Anthropic `messages` |
 | `anthropic_version` | Not used | Required |
-| Model names | Simple (`claude-sonnet-4-5`) | Versioned (`claude-4-5@date`) |
+| Model names | Simple (`claude-sonnet-4-6`) | Versioned (`claude-4-5@date`) |
 | Response format | `candidates[]` | Anthropic `content[]` |
 | Multi-model support | Yes (Claude, Gemini, etc.) | Anthropic only |
 

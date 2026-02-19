@@ -1,7 +1,7 @@
 /**
  * Model Resolution with Thinking Tier Support
  * 
- * Resolves model names with tier suffixes (e.g., gemini-3-pro-high, claude-sonnet-4-5-thinking-low)
+ * Resolves model names with tier suffixes (e.g., gemini-3-pro-high, claude-opus-4-6-thinking-low)
  * to their actual API model names and corresponding thinking configurations.
  */
 
@@ -47,28 +47,14 @@ export const MODEL_ALIASES: Record<string, string> = {
   "gemini-3-flash-high": "gemini-3-flash",
 
   // Claude proxy names (gemini- prefix for compatibility)
-  "gemini-claude-sonnet-4-5": "claude-sonnet-4-5",
-  "gemini-claude-sonnet-4-5-thinking-low": "claude-sonnet-4-5-thinking",
-  "gemini-claude-sonnet-4-5-thinking-medium": "claude-sonnet-4-5-thinking",
-  "gemini-claude-sonnet-4-5-thinking-high": "claude-sonnet-4-5-thinking",
-  "gemini-claude-opus-4-5-thinking-low": "claude-opus-4-5-thinking",
-  "gemini-claude-opus-4-5-thinking-medium": "claude-opus-4-5-thinking",
-  "gemini-claude-opus-4-5-thinking-high": "claude-opus-4-5-thinking",
   "gemini-claude-opus-4-6-thinking-low": "claude-opus-4-6-thinking",
   "gemini-claude-opus-4-6-thinking-medium": "claude-opus-4-6-thinking",
   "gemini-claude-opus-4-6-thinking-high": "claude-opus-4-6-thinking",
+  "gemini-claude-sonnet-4-6": "claude-sonnet-4-6",
 
   // Image generation models - only gemini-3-pro-image is available via Antigravity API
   // Note: gemini-2.5-flash-image (Nano Banana) is NOT supported by Antigravity - only Google AI API
   // Reference: Antigravity-Manager/src-tauri/src/proxy/common/model_mapping.rs
-};
-
-/**
- * Model fallbacks when primary model is unavailable.
- * NOTE: Image models should NOT fall back to non-image models!
- */
-export const MODEL_FALLBACKS: Record<string, string> = {
-  // No fallbacks for image models - they must stay as image models
 };
 
 const TIER_REGEX = /-(minimal|low|medium|high)$/;
@@ -153,7 +139,7 @@ function isThinkingCapableModel(model: string): boolean {
  * - "gemini-2.5-flash" → { quotaPreference: "antigravity" }
  * - "gemini-3-pro-preview" → { quotaPreference: "antigravity" }
  * - "antigravity-gemini-3-pro-high" → { quotaPreference: "antigravity", explicitQuota: true }
- * - "claude-sonnet-4-5-thinking-medium" → { quotaPreference: "antigravity" }
+ * - "claude-opus-4-6-thinking-medium" → { quotaPreference: "antigravity" }
  *
  * @param requestedModel - The model name from the request
  * @param options - Optional configuration including cli_first preference
@@ -197,7 +183,8 @@ export function resolveModelWithTier(requestedModel: string, options: ModelResol
     ? antigravityModel
     : MODEL_ALIASES[modelWithoutQuota] || MODEL_ALIASES[baseName] || baseName;
 
-  const resolvedModel = MODEL_FALLBACKS[actualModel] || actualModel;
+  const resolvedModel = actualModel;
+
   const isThinking = isThinkingCapableModel(resolvedModel);
 
   // Image generation models don't support thinking - return early without thinking config

@@ -373,15 +373,15 @@ v1.2.8+ introduces **model variants** for dynamic thinking configuration.
 **Before (v1.2.7):**
 ```json
 {
-  "antigravity-claude-sonnet-4-5-thinking-low": { ... },
-  "antigravity-claude-sonnet-4-5-thinking-max": { ... }
+  "antigravity-claude-opus-4-6-thinking-low": { ... },
+  "antigravity-claude-opus-4-6-thinking-max": { ... }
 }
 ```
 
 **After (v1.2.8+):**
 ```json
 {
-  "antigravity-claude-sonnet-4-5-thinking": {
+  "antigravity-claude-opus-4-6-thinking": {
     "variants": {
       "low": { "thinkingConfig": { "thinkingBudget": 8192 } },
       "max": { "thinkingConfig": { "thinkingBudget": 32768 } }
@@ -390,7 +390,7 @@ v1.2.8+ introduces **model variants** for dynamic thinking configuration.
 }
 ```
 
-Old tier-suffixed models still work for backward compatibility.
+Use canonical model names from current docs. Deprecated model names are sent as requested and may fail if the upstream API has removed them.
 
 ### v1.2.7 (Prefix)
 
@@ -399,9 +399,9 @@ v1.2.7+ uses explicit `antigravity-` prefix:
 | Old Name | New Name |
 |----------|----------|
 | `gemini-3-pro-low` | `antigravity-gemini-3-pro` |
-| `claude-sonnet-4-5` | `antigravity-claude-sonnet-4-5` |
+| `claude-sonnet-4-6` | `antigravity-claude-sonnet-4-6` |
 
-Old names work as fallback, but `antigravity-` prefix is recommended.
+Use the `antigravity-` prefixed model names shown above.
 
 ---
 

@@ -11,9 +11,9 @@ import {
 describe("cross-model-sanitizer", () => {
   describe("getModelFamily", () => {
     it("identifies Claude models", () => {
-      expect(getModelFamily("claude-opus-4-5-thinking-medium")).toBe("claude");
-      expect(getModelFamily("claude-sonnet-4-5")).toBe("claude");
-      expect(getModelFamily("claude-sonnet-4-5-thinking-low")).toBe("claude");
+      expect(getModelFamily("claude-opus-4-6-thinking-medium")).toBe("claude");
+      expect(getModelFamily("claude-sonnet-4-6")).toBe("claude");
+      expect(getModelFamily("claude-opus-4-6-thinking-low")).toBe("claude");
     });
 
     it("identifies Gemini models", () => {
@@ -301,7 +301,7 @@ describe("cross-model-sanitizer", () => {
       };
 
       const result = sanitizeCrossModelPayload(payload, {
-        targetModel: "claude-opus-4-5-thinking-medium",
+        targetModel: "claude-opus-4-6-thinking-medium",
       });
 
       expect(result.modified).toBe(true);
@@ -372,7 +372,7 @@ describe("cross-model-sanitizer", () => {
       };
 
       const result = sanitizeCrossModelPayload(payload, {
-        targetModel: "claude-sonnet-4-5-thinking-low",
+        targetModel: "claude-opus-4-6-thinking-low",
       });
 
       const fc = (result.payload as any).contents[0].parts[0].functionCall;
@@ -429,7 +429,7 @@ describe("cross-model-sanitizer", () => {
 
       const stripped = sanitizeCrossModelPayloadInPlace(
         payload as Record<string, unknown>,
-        { targetModel: "claude-opus-4-5-thinking-high" }
+        { targetModel: "claude-opus-4-6-thinking-high" }
       );
 
       expect(stripped).toBe(1);
@@ -516,7 +516,7 @@ describe("cross-model-sanitizer", () => {
       };
 
       const result = sanitizeCrossModelPayload(geminiSessionHistory, {
-        targetModel: "claude-opus-4-5-thinking-medium",
+        targetModel: "claude-opus-4-6-thinking-medium",
       });
 
       expect(result.modified).toBe(true);

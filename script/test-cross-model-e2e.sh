@@ -77,7 +77,7 @@ if [ -z "$SID" ]; then
 else
   log_info "Session: $SID"
   log_info "Step 2: Google Claude Opus Thinking + tool..."
-  opencode run -s "$SID" -m google/antigravity-claude-opus-4-5-thinking-low \
+  opencode run -s "$SID" -m google/antigravity-claude-opus-4-6-thinking-low \
     "Run: echo 'Test2-Google-Claude'" \
     > /tmp/e2e-t2-s2.log 2>&1 || true
   
@@ -142,7 +142,7 @@ fi
 echo ""
 
 # Test 5: OpenAI → Google Claude
-echo "Test 5: OpenAI → Google Claude Sonnet Thinking"
+echo "Test 5: OpenAI → Google Claude Opus Thinking"
 log_info "Step 1: OpenAI with tool..."
 opencode run -m openai/gpt-5.2-medium \
   "Run: echo 'Test5-OpenAI-Start'" \
@@ -156,8 +156,8 @@ else
     log_fail "Test 5 - No session ID"
   else
     log_info "Session: $SID"
-    log_info "Step 2: Google Claude Sonnet Thinking + tool..."
-    opencode run -s "$SID" -m google/antigravity-claude-sonnet-4-5-thinking-low \
+    log_info "Step 2: Google Claude Opus Thinking + tool..."
+    opencode run -s "$SID" -m google/antigravity-claude-opus-4-6-thinking-low \
       "Run: echo 'Test5-Google-Claude'" \
       > /tmp/e2e-t5-s2.log 2>&1 || true
     
@@ -190,7 +190,7 @@ else
   check_signature_error /tmp/e2e-t6-s2.log && CHAIN_OK=false
   
   log_info "Turn 3: Google Claude Opus..."
-  opencode run -s "$SID" -m google/antigravity-claude-opus-4-5-thinking-low \
+  opencode run -s "$SID" -m google/antigravity-claude-opus-4-6-thinking-low \
     "Run: echo 'Turn3'" > /tmp/e2e-t6-s3.log 2>&1 || true
   check_signature_error /tmp/e2e-t6-s3.log && CHAIN_OK=false
   
@@ -217,8 +217,8 @@ echo ""
 
 # Test 7: Google Claude → Anthropic Claude (same family, different API)
 echo "Test 7: Google Claude → Anthropic Claude (same family)"
-log_info "Step 1: Google Claude Sonnet Thinking..."
-opencode run -m google/antigravity-claude-sonnet-4-5-thinking-low \
+log_info "Step 1: Google Claude Opus Thinking..."
+opencode run -m google/antigravity-claude-opus-4-6-thinking-low \
   "Run: echo 'Test7-Google-Claude'" \
   > /tmp/e2e-t7-s1.log 2>&1 || true
 
